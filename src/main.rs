@@ -10,9 +10,9 @@ use piston::event_loop::*;
 use piston::input::*;
 use piston::window::WindowSettings;
 
-const WIDTH: u32 = 800;
-const HEIGHT: u32 = 600;
-const SQUARE_SIZE: i32 = 5;
+const WIDTH: u32 = 1920;
+const HEIGHT: u32 = 1080;
+const SQUARE_SIZE: i32 = 10;
 const ROWS: u32 = WIDTH / SQUARE_SIZE as u32;
 const COLS: u32 = HEIGHT / SQUARE_SIZE as u32;
 
@@ -80,7 +80,7 @@ impl Game {
             dragging: false,
             arr: [[BLACK; COLS as usize]; ROWS as usize],
             gl: g,
-            color: Color::new(255.0, 1.0, 1.0),
+            color: Color::new(0.0, 1.0, 1.0),
         }
     }
 
@@ -151,7 +151,7 @@ impl Game {
         if x < ROWS as i32 && y < COLS as i32 {
             self.arr[x as usize][y as usize] = self.color;
         }
-        self.color.h = (self.color.h + 0.1) % 255.0;
+        self.color.h = (self.color.h + 0.075) % 360.0;
     }
 
     fn process_input(&mut self, arg: &ButtonArgs) {
@@ -175,6 +175,7 @@ fn main() {
     let mut window: Window = WindowSettings::new("Sand?", [WIDTH, HEIGHT])
         .opengl(opengl)
         .exit_on_esc(true)
+        .fullscreen(true)
         .build()
         .unwrap();
 
