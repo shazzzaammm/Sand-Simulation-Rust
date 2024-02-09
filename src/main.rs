@@ -11,13 +11,25 @@ use piston::input::*;
 use piston::window::WindowSettings;
 use rand::Rng;
 
+/// Width of the window
 const WIDTH: u32 = 1920;
+
+/// Height of the window
 const HEIGHT: u32 = 1080;
+
+/// Size of each grain of sand
 const SQUARE_SIZE: i32 = 10;
+
+/// Grid rows
 const ROWS: u32 = WIDTH / SQUARE_SIZE as u32;
+
+/// Grid columns
 const COLS: u32 = HEIGHT / SQUARE_SIZE as u32;
+
+/// The color black
 const BLACK: [f32; 4] = [0.0, 0.0, 0.0, 1.0];
 
+/// Converts a HSV number of (h, 1.0, 1.0) to its RGBA value  
 fn to_rgba(h: f32) -> [f32; 4] {
     let (h, s, v) = (h, 1.0, 1.0);
     let c = v * s;
@@ -41,16 +53,18 @@ fn to_rgba(h: f32) -> [f32; 4] {
     [(r + m), (g + m), (b + m), 1.0]
 }
 
-struct Game {
+/// The sand simulation object
+struct Simulation {
     gl: GlGraphics,
     grid: [[f32; COLS as usize]; ROWS as usize],
     dragging: bool,
     hue: f32,
 }
 
-impl Game {
-    fn new(g: GlGraphics) -> Game {
-        Game {
+impl Simulation {
+    /// Create a new simulation from an instance of GlGraphics
+    fn new(g: GlGraphics) -> Simulation {
+        Simulation {
             dragging: false,
             grid: [[0.0; COLS as usize]; ROWS as usize],
             gl: g,
@@ -58,6 +72,7 @@ impl Game {
         }
     }
 
+    /// Render the simulation
     fn render(&mut self, arg: &RenderArgs) {
         self.gl.draw(arg.viewport(), |_c, gl| {
             graphics::clear(BLACK, gl);
@@ -80,6 +95,7 @@ impl Game {
         });
     }
 
+    /// Update the simulation
     fn update(&mut self) {
         let mut next_arr = self.grid;
         let mut rand_dir: f32 = rand::thread_rng().gen();
@@ -123,6 +139,7 @@ impl Game {
         self.grid = next_arr;
     }
 
+    /// Perform functions based off the mouse state and position
     fn process_mouse(&mut self, arg: [f64; 2]) {
         if !self.dragging {
             return;
@@ -135,6 +152,7 @@ impl Game {
         self.hue = (self.hue + 0.075) % 360.0 + 0.01;
     }
 
+    /// Perform functions based off button presses
     fn process_input(&mut self, arg: &ButtonArgs) {
         match arg.state {
             ButtonState::Press => match arg.button {
@@ -151,6 +169,7 @@ impl Game {
     }
 }
 
+/// Driver function for the simulation
 fn main() {
     let opengl = OpenGL::V3_2;
     let mut window: Window = WindowSettings::new("Sand?", [WIDTH, HEIGHT])
@@ -160,7 +179,7 @@ fn main() {
         .build()
         .unwrap();
 
-    let mut game = Game::new(GlGraphics::new(opengl));
+    let mut game = Simulation::new(GlGraphics::new(opengl));
 
     let e_settings = EventSettings::new();
 
