@@ -59,6 +59,7 @@ struct Simulation {
     grid: [[f32; COLS as usize]; ROWS as usize],
     dragging: bool,
     hue: f32,
+    placement_size: i32,
 }
 
 impl Simulation {
@@ -69,6 +70,7 @@ impl Simulation {
             grid: [[0.0; COLS as usize]; ROWS as usize],
             gl: g,
             hue: 0.01,
+            placement_size: 2,
         }
     }
 
@@ -119,7 +121,8 @@ impl Simulation {
                     next_arr[x][y] = 0.0;
                 }
                 // Go one way
-                else if x as i16 - rand_dir >= 0
+                else if x as i16 - rand_dir > 0
+                    && x as i16 - rand_dir <= ROWS as i16
                     && self.grid[x][y] != 0.0
                     && self.grid[(x as i16 - rand_dir) as usize][y - 1] == 0.0
                 {
@@ -127,9 +130,10 @@ impl Simulation {
                     next_arr[x][y] = 0.0;
                 }
                 // Go the other way
-                else if x as i16 + rand_dir <= COLS as i16
+                else if x as i16 + rand_dir > 0 as i16
+                    && x as i16 + rand_dir <= ROWS as i16
                     && self.grid[x][y] != 0.0
-                    && self.grid[(x as i16 - rand_dir) as usize][y - 1] == 0.0
+                    && self.grid[(x as i16 + rand_dir) as usize][y - 1] == 0.0
                 {
                     next_arr[(x as i16 + rand_dir) as usize][y - 1] = self.grid[x][y];
                     next_arr[x][y] = 0.0;
@@ -146,9 +150,20 @@ impl Simulation {
         }
         let x = arg[0] as i32 / SQUARE_SIZE;
         let y = arg[1] as i32 / SQUARE_SIZE;
-        if x < ROWS as i32 && y < COLS as i32 {
-            self.grid[x as usize][y as usize] = self.hue;
+
+        for i in x - self.placement_size..x + self.placement_size {
+            for j in y - self.placement_size..y + self.placement_size {
+                if i < ROWS as i32
+                    && j < COLS as i32
+                    && i >= 0
+                    && j >= 0
+                    && self.grid[i as usize][j as usize] == 0.0
+                {
+                    self.grid[i as usize][j as usize] = self.hue;
+                }
+            }
         }
+
         self.hue = (self.hue + 0.075) % 360.0 + 0.01;
     }
 
@@ -158,6 +173,14 @@ impl Simulation {
             ButtonState::Press => match arg.button {
                 Button::Mouse(MouseButton::Left) => self.dragging = true,
                 Button::Keyboard(Key::R) => self.grid = [[0.0; COLS as usize]; ROWS as usize],
+                Button::Keyboard(Key::Down) => {
+                    self.placement_size = if self.placement_size > 1 {
+                        self.placement_size - 1
+                    } else {
+                        self.placement_size
+                    }
+                }
+                Button::Keyboard(Key::Up) => self.placement_size = self.placement_size + 1,
                 _ => (),
             },
 
