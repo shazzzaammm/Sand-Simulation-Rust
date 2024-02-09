@@ -9,13 +9,13 @@ use opengl_graphics::{GlGraphics, OpenGL};
 use piston::event_loop::*;
 use piston::input::*;
 use piston::window::WindowSettings;
+use rand::Rng;
 
 const WIDTH: u32 = 1920;
 const HEIGHT: u32 = 1080;
-const SQUARE_SIZE: i32 = 5;
+const SQUARE_SIZE: i32 = 10;
 const ROWS: u32 = WIDTH / SQUARE_SIZE as u32;
 const COLS: u32 = HEIGHT / SQUARE_SIZE as u32;
-
 const BLACK: [f32; 4] = [0.0, 0.0, 0.0, 1.0];
 
 fn to_rgba(h: f32) -> [f32; 4] {
@@ -82,6 +82,13 @@ impl Game {
 
     fn update(&mut self) {
         let mut next_arr = self.grid;
+        let mut rand_dir: f32 = rand::thread_rng().gen();
+        if rand_dir > 0.5 {
+            rand_dir = -1.0;
+        } else {
+            rand_dir = 1.0;
+        }
+        let rand_dir: i16 = rand_dir as i16;
 
         for x in 0..ROWS as usize {
             for y in 0..COLS as usize {
@@ -95,20 +102,20 @@ impl Game {
                     next_arr[x][y - 1] = self.grid[x][y];
                     next_arr[x][y] = 0.0;
                 }
-                // Go left
-                else if x as i16 - 1 >= 0
+                // Go one way
+                else if x as i16 - rand_dir >= 0
                     && self.grid[x][y] != 0.0
-                    && self.grid[x - 1][y - 1] == 0.0
+                    && self.grid[(x as i16 - rand_dir) as usize][y - 1] == 0.0
                 {
-                    next_arr[x - 1][y - 1] = self.grid[x][y];
+                    next_arr[(x as i16 - rand_dir) as usize][y - 1] = self.grid[x][y];
                     next_arr[x][y] = 0.0;
                 }
-                // Go right
-                else if x as i16 + 1 <= COLS as i16
+                // Go the other way
+                else if x as i16 + rand_dir <= COLS as i16
                     && self.grid[x][y] != 0.0
-                    && self.grid[x + 1][y - 1] == 0.0
+                    && self.grid[(x as i16 - rand_dir) as usize][y - 1] == 0.0
                 {
-                    next_arr[x + 1][y - 1] = self.grid[x][y];
+                    next_arr[(x as i16 + rand_dir) as usize][y - 1] = self.grid[x][y];
                     next_arr[x][y] = 0.0;
                 }
             }
