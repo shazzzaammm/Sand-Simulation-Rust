@@ -121,8 +121,8 @@ impl Simulation {
                     next_arr[x][y] = 0.0;
                 }
                 // Go one way
-                else if x as i16 - rand_dir > 0
-                    && x as i16 - rand_dir <= ROWS as i16
+                else if x as i16 - rand_dir >= 0
+                    && x as i16 - rand_dir < ROWS as i16
                     && self.grid[x][y] != 0.0
                     && self.grid[(x as i16 - rand_dir) as usize][y - 1] == 0.0
                 {
@@ -130,8 +130,8 @@ impl Simulation {
                     next_arr[x][y] = 0.0;
                 }
                 // Go the other way
-                else if x as i16 + rand_dir > 0 as i16
-                    && x as i16 + rand_dir <= ROWS as i16
+                else if x as i16 + rand_dir >= 0 as i16
+                    && x as i16 + rand_dir < ROWS as i16
                     && self.grid[x][y] != 0.0
                     && self.grid[(x as i16 + rand_dir) as usize][y - 1] == 0.0
                 {
